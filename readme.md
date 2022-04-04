@@ -2,7 +2,7 @@
 
 Monorepo for [jsperf.dev](https://jsperf.dev).
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](./code_of_conduct.md) [![License](https://img.shields.io/github/license/jsperfdev/jsperf.dev)](./license.md) ![Turbo](https://img.shields.io/github/package-json/dependency-version/jsperfdev/jsperf.dev/turbo)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](./code_of_conduct.md) [![License](https://img.shields.io/github/license/jsperfdev/jsperf.dev)](./license.md) ![Turbo](https://img.shields.io/github/package-json/dependency-version/jsperfdev/jsperf.dev/dev/turbo)
 
 ## Packages
 
