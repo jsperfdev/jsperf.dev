@@ -1,0 +1,21 @@
+{
+  "name": "config",
+  "private": true,
+  "files": [
+    ".eslintrc.js",
+    "tsconfig-base.json"
+  ],
+  "scripts": {
+    "eslint": "cross-env TIMING=1 eslint --max-warnings 0 --config .eslintrc.js"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.12.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-node": "^11.1.0",
+    "typescript": "^4.5.5"
+  }
+}

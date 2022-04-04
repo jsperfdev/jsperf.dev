@@ -3,22 +3,25 @@
   "version": "0.0.0",
   "private": true,
   "workspaces": [
-    "apps/*",
     "packages/*"
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
+    "husky": "^7.0.4",
     "prettier": "^2.5.1",
-    "turbo": "latest"
+    "turbo": "^1.1.10"
   },
   "engines": {
     "npm": ">=7.0.0",
     "node": ">=14.0.0"
   },
-  "packageManager": "pnpm@6.32.4"
+  "packageManager": "pnpm@6.32.4",
+  "contributors": [
+    "Ethan Arrowood <ethan@arrowood.dev>"
+  ]
 }
