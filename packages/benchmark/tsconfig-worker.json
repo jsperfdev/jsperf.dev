@@ -1,0 +1,9 @@
+{
+    "extends": "../configs-and-scripts/tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "target": "es2022",
+        "module": "es2022",
+    },
+    "include": ["src/worker/worker.ts"]
+}
