@@ -1,9 +1,11 @@
 {
   "name": "@jsperf.dev/benchmark",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A tap-like benchmarking library",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc --project tsconfig-worker.json",
@@ -11,7 +13,13 @@
     "lint": "cd ../configs-and-scripts && pnpm eslint ../benchmark",
     "prepublish": "pnpm clean && pnpm build"
   },
-  "keywords": ["benchmarking", "javascript", "typescript", "nodejs", "performance"],
+  "keywords": [
+    "benchmarking",
+    "javascript",
+    "typescript",
+    "nodejs",
+    "performance"
+  ],
   "contributors": [
     "Ethan Arrowood <ethan@arrowood.dev>"
   ],
