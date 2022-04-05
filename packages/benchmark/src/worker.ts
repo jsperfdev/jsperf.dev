@@ -1,11 +1,11 @@
 import { parentPort, workerData } from "worker_threads";
-import { JSONParse, JSONStringify } from "../utils.js";
+import { JSONParse, JSONStringify } from "./utils.js";
 
-const func = eval(workerData.func);
 const context = JSONParse(workerData.context);
+const module = await import(workerData.file);
 
 performance.mark("start");
-const result = await func(context);
+const result = await module.default(context);
 performance.mark("end");
 
 performance.measure(workerData.id, "start", "end");

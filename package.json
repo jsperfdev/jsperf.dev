@@ -23,5 +23,8 @@
   "packageManager": "pnpm@6.32.4",
   "contributors": [
     "Ethan Arrowood <ethan@arrowood.dev>"
-  ]
+  ],
+  "lint-staged": {
+    "**/*.{ts,tsx,md}": "prettier --write"
+  }
 }

@@ -1,0 +1,10 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "example": "node example-runner.js"
+    },
+    "dependencies": {
+        "@jsperf.dev/benchmark": "^0.0.2"
+    }
+}

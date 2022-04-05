@@ -8,7 +8,7 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --project tsconfig.json && tsc --project tsconfig-worker.json",
+    "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist",
     "lint": "cd ../configs-and-scripts && pnpm eslint ../benchmark",
     "prepublish": "pnpm clean && pnpm build"

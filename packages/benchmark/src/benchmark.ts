@@ -23,8 +23,8 @@ interface Meta {
 }
 
 export class Benchmark<Context> {
-  private context: Context;
-  private runs: Map<string, FunctionWithContext<Context>>;
+  public context: Context;
+  private runs: Map<string, string>;
   private handlers: Handlers<Context>;
   private results: Map<string, Array<PerformanceEntry>>;
   public warmup: boolean;
@@ -105,13 +105,13 @@ export class Benchmark<Context> {
   }
 
   private buildRuns({ recordPerformance = true }) {
-    return Array.from(this.runs).map(async ([id, func]) => {
+    return Array.from(this.runs).map(async ([id, file]) => {
       if (!this.results.get(id)) {
         this.results.set(id, []);
       }
       await this.executeHandlers(this.handlers.beforeEach);
 
-      const workerResultRaw = await this.executeRun([id, func]);
+      const workerResultRaw = await this.executeRun([id, file]);
 
       if (recordPerformance) {
         const workerResult = JSONParse(workerResultRaw);
@@ -126,15 +126,12 @@ export class Benchmark<Context> {
     });
   }
 
-  private executeRun([id, func]: [
-    id: string,
-    func: FunctionWithContext<Context>
-  ]) {
+  private executeRun([id, file]: [id: string, file: string]) {
     return new Promise<string>((resolve, reject) => {
-      const worker = new Worker(path.join(__dirname, "./worker/worker.js"), {
+      const worker = new Worker(path.join(__dirname, "./worker.js"), {
         workerData: {
           id,
-          func: func.toString(),
+          file,
           context: JSONStringify(this.context),
         },
       });
@@ -147,10 +144,10 @@ export class Benchmark<Context> {
     });
   }
 
-  run(id: string, func: FunctionWithContext<Context>) {
+  run(id: string, file: string) {
     if (this.runs.has(id)) {
       throw new Error(`Run with id ${id} already exists.`);
     }
-    this.runs.set(id, func);
+    this.runs.set(id, file);
   }
 }
