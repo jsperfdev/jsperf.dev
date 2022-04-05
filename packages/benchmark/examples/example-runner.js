@@ -23,7 +23,4 @@ if (!stat.isFile()) {
     throw new Error(`Cannot find benchmark.js in example ${example}`);
 }
 
-const { stdout, stderr } = await exec(`node ${benchmarkScriptPath}`);
-
-console.log('stdout:', stdout);
-console.error('stderr:', stderr);
+await exec(`node ${benchmarkScriptPath}`);

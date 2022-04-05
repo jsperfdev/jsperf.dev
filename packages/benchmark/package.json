@@ -1,6 +1,6 @@
 {
   "name": "@jsperf.dev/benchmark",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "A tap-like benchmarking library",
   "type": "module",
   "files": [
@@ -11,7 +11,7 @@
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist",
     "lint": "cd ../configs-and-scripts && pnpm eslint ../benchmark",
-    "prepublish": "pnpm clean && pnpm build"
+    "prepublishOnly": "pnpm clean && pnpm build"
   },
   "keywords": [
     "benchmarking",
