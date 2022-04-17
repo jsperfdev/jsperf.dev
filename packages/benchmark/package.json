@@ -11,7 +11,8 @@
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist",
     "lint": "cd ../configs-and-scripts && pnpm eslint ../benchmark",
-    "prepublishOnly": "pnpm clean && pnpm build"
+    "prepublishOnly": "pnpm clean && pnpm build",
+    "test": "tap --no-coverage --node-arg=--loader=ts-node/esm tests"
   },
   "keywords": [
     "benchmarking",
@@ -31,10 +32,15 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^17.0.17",
+    "@types/tap": "^15.0.6",
     "eslint": "^8.12.0",
+    "tap": "^16.0.1",
+    "ts-node": "^10.7.0",
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "pino": "^7.10.0",
+    "pino-pretty": "^7.6.1",
     "simple-statistics": "^7.7.5"
   }
 }

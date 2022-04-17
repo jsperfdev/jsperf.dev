@@ -37,3 +37,16 @@ export type FunctionWithContext<Context> = (
   context: Context,
   ...extraArgs: unknown[]
 ) => void | Promise<void>;
+
+export interface WorkerData {
+  id: string;
+  file: string;
+  context: string;
+  samples: number;
+}
+
+export interface WorkerResult {
+  id: string;
+  results: Array<unknown>;
+  measures: PerformanceEntryList;
+}

@@ -3,10 +3,12 @@ import {
   __dirname,
   JSONStringify,
   JSONParse,
+  WorkerResult,
 } from "./utils.js";
 import path from "path";
 import { Worker } from "worker_threads";
 import { median } from "simple-statistics";
+import pino from "pino";
 
 type HandlerList<Context> = FunctionWithContext<Context>[];
 
@@ -24,16 +26,32 @@ interface Meta {
 
 export class Benchmark<Context> {
   public context: Context;
-  private runs: Map<string, string>;
-  private handlers: Handlers<Context>;
-  private results: Map<string, Array<PerformanceEntry>>;
-  public warmup: boolean;
   public meta: Meta = {};
 
-  constructor({ warmup = true, samples = 10 } = {}) {
-    this.warmup = warmup;
+  private handlers: Handlers<Context>;
+  private recordPerformance: boolean;
+  private results: Map<string, Array<PerformanceEntry>>;
+  private runs: Map<string, string>;
+  private samples: number;
+  private warmup: boolean;
+  private logger: pino.Logger;
+
+  constructor({
+    warmup = true,
+    samples = 10,
+    loggerOptions = {
+      transport: {
+        target: "pino-pretty",
+      },
+    },
+  }: {
+    warmup?: boolean;
+    samples?: number;
+    loggerOptions?: pino.LoggerOptions;
+  } = {}) {
+    this.logger = pino(loggerOptions);
+
     this.context = {} as Context;
-    this.runs = new Map();
 
     this.handlers = {
       beforeAll: [],
@@ -41,37 +59,46 @@ export class Benchmark<Context> {
       afterEach: [],
       afterAll: [],
     };
-
+    this.recordPerformance = false;
     this.results = new Map();
+    this.runs = new Map();
+    this.samples = samples;
+    this.warmup = warmup;
 
-    queueMicrotask(() => {
-      console.log(
+    queueMicrotask(async () => {
+      if (Array.from(this.runs).length === 0) {
+        this.logger.warn(
+          "No benchmark runs found. To remove this warning, check for an unused `benchmark` instance from @jsperf.dev/benchmark"
+        );
+        return;
+      }
+      this.logger.info(
         `Executing Benchmark script ${this.meta.title || process.argv[1]}`
       );
       if (this.meta.description) {
-        console.log(`    Description: ${this.meta.description}`);
+        this.logger.info(`    Description: ${this.meta.description}`);
       }
-      console.log(`    Sample Size: ${samples}`);
+      this.logger.info(`    Sample Size: ${this.samples}`);
       if (this.warmup) {
-        this.executeRuns({ recordPerformance: false, samples });
+        this.recordPerformance = false;
+        await this.executeRuns();
       }
-      this.executeRuns({ samples });
+      this.recordPerformance = true;
+      await this.executeRuns();
     });
   }
 
-  async executeRuns({ recordPerformance = true, samples = 10 }) {
-    for (let i = 0; i < samples; i++) {
-      await this.executeHandlers(this.handlers.beforeAll);
+  async executeRuns() {
+    await this.executeHandlers(this.handlers.beforeAll);
 
-      const runs = this.buildRuns({ recordPerformance });
+    const runs = this.buildRuns();
 
-      await Promise.all(runs);
+    await Promise.all(runs);
 
-      await this.executeHandlers(this.handlers.afterAll);
-    }
+    await this.executeHandlers(this.handlers.afterAll);
 
-    if (recordPerformance) {
-      console.table(
+    if (this.recordPerformance) {
+      this.logger.info(
         Array.from(this.results).flatMap(([key, performanceEntries]) => {
           return {
             Run: key,
@@ -104,24 +131,24 @@ export class Benchmark<Context> {
     return Promise.all(handlers.map((handler) => handler(this.context, data)));
   }
 
-  private buildRuns({ recordPerformance = true }) {
+  private buildRuns() {
     return Array.from(this.runs).map(async ([id, file]) => {
       if (!this.results.get(id)) {
         this.results.set(id, []);
       }
+
       await this.executeHandlers(this.handlers.beforeEach);
 
       const workerResultRaw = await this.executeRun([id, file]);
 
-      if (recordPerformance) {
-        const workerResult = JSONParse(workerResultRaw);
+      if (this.recordPerformance) {
+        const workerResult = JSONParse(workerResultRaw) as WorkerResult;
 
-        await this.executeHandlers(
-          this.handlers.afterEach,
-          workerResult.result
-        );
+        for (const result of workerResult.results) {
+          await this.executeHandlers(this.handlers.afterEach, result);
+        }
 
-        this.results.get(workerResult.id)?.push(workerResult.measure);
+        this.results.set(workerResult.id, workerResult.measures);
       }
     });
   }
@@ -133,6 +160,7 @@ export class Benchmark<Context> {
           id,
           file,
           context: JSONStringify(this.context),
+          samples: this.samples,
         },
       });
       worker.on("message", resolve);
