@@ -100,15 +100,50 @@ A property that will be passed as the first argument to each lifecyle method and
 
 #### Instance Methods
 
-##### `Benchmark.afterAll()`
+##### `Benchmark.afterAll(func)`
 
-##### `Benchmark.afterEach()`
+Arguments:
 
-##### `Benchmark.beforeAll()`
+- **func** - `FunctionWithContext<Context>` - _required_
 
-##### `Benchmark.beforeEach()`
+Lifecycle method for adding a function that executes after all other scripts are executed.
 
-##### `Benchmark.run()`
+##### `Benchmark.afterEach(func)`
+
+Arguments:
+
+- **func** - `FunctionWithContext<Context>` - _required_
+
+Lifecycle method for adding a function that executes after each _run_ script is executed.
+
+##### `Benchmark.beforeAll(func)`
+
+Arguments:
+
+- **func** - `FunctionWithContext<Context>` - _required_
+
+Lifecycle method for adding a function that executes before all scripts are executed.
+
+##### `Benchmark.beforeEach(func)`
+
+Arguments:
+
+- **func** - `FunctionWithContext<Context>` - _required_
+
+Lifecycle method for adding a function that executes before each _run_ script is executed.
+
+##### `Benchmark.run(id, file)`
+
+Arguments:
+
+- **id** - `string` - _required_
+- **file** - `string` - _required_
+
+Add a run to the benchmark instance. The `id` must be unique and `file` must be the absolute path to the script.
+
+### Interface: `FunctionWithContext<Context>`
+
+- `(context: Context, ...extraArgs: unknown[]) => void | Promise<void>`
 
 ## Testing
 
