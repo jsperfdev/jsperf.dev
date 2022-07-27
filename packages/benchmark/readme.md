@@ -1,66 +1,115 @@
 # @jsperf.dev/benchmark
 
-## Documentation
+## Getting Started
 
-> Coming soon!
+The module has two main exports:
 
-## Examples
+1. `const benchmark = require('@jsperf.dev/benchmark').default` or `import benchmark from '@jsperf.dev/benchmark'`
+   The default export is an initialized instance of the [Benchmark][] class. It is initialized with all configuration properties set to their documented defaults.
+2. `const { Benchmark } = require('@jsperf.dev/benchmark')` or `import { Benchmark } from '@jsper.dev/benchmark'`
+   The [Benchmark][] class is also available as a named export so it can be manually instantiated and configured by the user.
 
-### Available Examples:
+Start the benchmarking scipt using one of the import methods:
 
-> Example results were executed on a 2019 MacBook Pro running macOS Monterey v12.1 with the following hardwar specs:
->
-> - Processor: 2.4 GHz 8-Core Intel Core i9
-> - Memory: 32 GB 2667 MHz DDR4
-
-- [for](./examples/for/)
-
-```
-Executing Benchmark script For Iteration
-    Description: Iterating 100,000 items
-    Sample Size: 10
-┌─────────┬────────────┬─────────────────────┐
-│ (index) │    Run     │  Median Time (ms)   │
-├─────────┼────────────┼─────────────────────┤
-│    0    │   'for'    │ 0.03459930419921875 │
-│    1    │ 'forEach'  │ 0.9072113037109375  │
-│    2    │ 'for...of' │ 0.07788610458374023 │
-└─────────┴────────────┴─────────────────────┘
+```js
+const benchmark = require("@jsperf.dev/benchmark").default;
 ```
 
-- [async](./examples/async/)
+Then, begin by defining necessary lifecycle methods. The four available are `beforeAll`, `beforeEach`, `afterAll`, and `afterEach`.
 
-```
-Executing Benchmark script Async setTimeout
-    Description: Demonstrating async run capabilities
-    Sample Size: 10
-┌─────────┬────────┬────────────────────┐
-│ (index) │  Run   │  Median Time (ms)  │
-├─────────┼────────┼────────────────────┤
-│    0    │ '1sec' │ 1000.911313533783  │
-│    1    │ '2sec' │ 2000.656376838684  │
-│    2    │ '3sec' │ 3000.8584184646606 │
-└─────────┴────────┴────────────────────┘
-```
+A benchmark suite has a `context` that is passed to every lifecycle method and run scripts. The recommended way to set the `context` is during the `beforeAll` lifecycle method.
 
-- [sumOfSquares](./examples/sumOfSquares/)
+For example, the `context` should contain normalized input values or methods that all of the run scripts should use.
 
-```
-Executing Benchmark script Sum of Squares
-    Description: Compare 3 seperate algorithms for calculating the sum of the square of all numbers from 0 to 1000
-    Sample Size: 10
-┌─────────┬─────────────┬──────────────────────┐
-│ (index) │     Run     │   Median Time (ms)   │
-├─────────┼─────────────┼──────────────────────┤
-│    0    │ 'quick sum' │ 0.017957687377929688 │
-│    1    │  'forEach'  │ 0.19411420822143555  │
-│    2    │  'reduce'   │ 0.18889188766479492  │
-└─────────┴─────────────┴──────────────────────┘
+From the [sumOfSquares]() example:
+
+```js
+benchmark.beforeAll((context) => {
+  Object.assign(context, {
+    list: Array.from({ length: 100 }, (_, i) => i),
+    square: (n) => n ** 2,
+  });
+});
 ```
 
-### How to Run
+Similarly, the _after_ lifecycle methods can be used to assert that the results of each run script are correct. Continuing with the [sumOfSquares]() example, the following block asserts that the `list` in the `context` remains the same length, and that the result from each run is the expected value.
 
-- Set your current directory to `packages/benchmark/examples`
-- Install dependencies (i.e. `pnpm install`)
-  - The `examples` directory has its own `package.json` with `@jsperf.dev/benchmark` as a dependency. If you are testing out local changes to the benchmark application, don't forget to build it (`pnpm build`) and then link the dependency locally using [`pnpm link`](https://pnpm.io/cli/link).
-- Use the `example` script and execute any of the examples listed above (i.e. `pnpm example for`)
+```js
+benchmark.afterEach(({ list }, sum) => {
+  assert(list.length === 100, `list has 100 items`);
+  assert(sum === 328350, `sum is ${sum}`);
+});
+```
+
+Each _run_ should be designed to make use of the values in `context`, and then be sure to return the computed result so it can be verified in the _after_ blocks.
+
+```js
+// examples/sumOfSquares/reduce.js
+module.exports.default = ({ list, square }) => {
+  return list.reduce((acc, i) => (acc += square(i)), 0);
+};
+```
+
+Finally, back in the benchmarking script, add runs using the `run` method. The first argument must be a unique identifier, and the second argument must be the absoulte path to the _run_ script. The [sumOfSquares]() example is written in CommonJS so it makes use of `path.resolve()` and `__dirname`, but ESM users can make use of a path resolver like: `path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), 'reduce.js')`.
+
+```js
+benchmark.run("reduce", path.resolve(__dirname, "reduce.js"));
+```
+
+The benchmark script can be executed using `node` and information about the execution will be logged to `stdout`. Below is a simplified output of the [sumOfSquares]() example.
+
+```
+{ "script": "Sum of Squares" }
+{ "description": "Compare 3 seperate algorithms for calculating the sum of the square of all numbers from 0 to 100" }
+{ "samples": 10}
+{ "results": [
+    { "run": "quick sum", "medianTime": 0.010526984930038452 },
+    { "run": "forEach", "medianTime": 0.010573983192443848 },
+    { "run": "reduce", "medianTime": 0.01349899172782898 }
+]}
+```
+
+## API
+
+### Default: `benchmark`
+
+- type: `Benchmark`
+
+### Class: `Benchmark`
+
+#### `new Benchmark<Context>(options)`
+
+Arguments:
+
+- **options** - `object` - _optional_ - Default: `{}`
+  - **warmup** - `boolean` - _optional_ - Default: `true`
+  - **samples** - `number` - _optional_ - Default: `10`
+
+#### Instance Properties
+
+##### `Benchmark.context`
+
+- `Context`
+
+A property that will be passed as the first argument to each lifecyle method and run script.
+
+##### `Benchmark.meta`
+
+- `object`
+  - **title** - `string` - _optional_
+
+#### Instance Methods
+
+##### `Benchmark.afterAll()`
+
+##### `Benchmark.afterEach()`
+
+##### `Benchmark.beforeAll()`
+
+##### `Benchmark.beforeEach()`
+
+##### `Benchmark.run()`
+
+## Testing
+
+Execute tests using `pnpm test`

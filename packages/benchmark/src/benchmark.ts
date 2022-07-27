@@ -1,14 +1,14 @@
-import {
-  FunctionWithContext,
-  __dirname,
-  JSONStringify,
-  JSONParse,
-  WorkerResult,
-} from "./utils.js";
 import path from "path";
-import { Worker } from "worker_threads";
-import { median } from "simple-statistics";
 import pino from "pino";
+import { Worker } from "worker_threads";
+import { median } from "./median";
+import { parseJSONWithFunctions } from "./parse-json-with-functions.js";
+import { stringifyJSONWithFunctions } from "./stringify-json-with-functions.js";
+
+type FunctionWithContext<Context> = (
+  context: Context,
+  ...extraArgs: unknown[]
+) => void | Promise<void>;
 
 type HandlerList<Context> = FunctionWithContext<Context>[];
 
@@ -24,33 +24,38 @@ interface Meta {
   description?: string;
 }
 
+export interface WorkerData {
+  id: string;
+  file: string;
+  context: string;
+  samples: number;
+}
+
+interface WorkerResult {
+  id: string;
+  results: Array<unknown>;
+  measures: PerformanceEntryList;
+}
+
 export class Benchmark<Context> {
   public context: Context;
   public meta: Meta = {};
 
   private handlers: Handlers<Context>;
+  private logger: pino.Logger = pino();
   private recordPerformance: boolean;
   private results: Map<string, Array<PerformanceEntry>>;
   private runs: Map<string, string>;
   private samples: number;
   private warmup: boolean;
-  private logger: pino.Logger;
 
   constructor({
     warmup = true,
     samples = 10,
-    loggerOptions = {
-      transport: {
-        target: "pino-pretty",
-      },
-    },
   }: {
     warmup?: boolean;
     samples?: number;
-    loggerOptions?: pino.LoggerOptions;
   } = {}) {
-    this.logger = pino(loggerOptions);
-
     this.context = {} as Context;
 
     this.handlers = {
@@ -59,56 +64,42 @@ export class Benchmark<Context> {
       afterEach: [],
       afterAll: [],
     };
+
     this.recordPerformance = false;
     this.results = new Map();
     this.runs = new Map();
     this.samples = samples;
     this.warmup = warmup;
 
+    this.meta.title = this.meta.title ?? process.argv[1];
+
     queueMicrotask(async () => {
-      if (Array.from(this.runs).length === 0) {
-        this.logger.warn(
-          "No benchmark runs found. To remove this warning, check for an unused `benchmark` instance from @jsperf.dev/benchmark"
-        );
-        return;
-      }
-      this.logger.info(
-        `Executing Benchmark script ${this.meta.title || process.argv[1]}`
-      );
+      if (Array.from(this.runs).length === 0) return;
+
+      this.logger.info({ script: this.meta.title });
+
       if (this.meta.description) {
-        this.logger.info(`    Description: ${this.meta.description}`);
+        this.logger.info({ description: this.meta.description });
       }
-      this.logger.info(`    Sample Size: ${this.samples}`);
+
+      this.logger.info({ samples: this.samples });
+
       if (this.warmup) {
         this.recordPerformance = false;
         await this.executeRuns();
       }
+
       this.recordPerformance = true;
       await this.executeRuns();
     });
   }
 
-  async executeRuns() {
-    await this.executeHandlers(this.handlers.beforeAll);
+  afterAll(func: FunctionWithContext<Context>) {
+    this.handlers.afterAll.push(func);
+  }
 
-    const runs = this.buildRuns();
-
-    await Promise.all(runs);
-
-    await this.executeHandlers(this.handlers.afterAll);
-
-    if (this.recordPerformance) {
-      this.logger.info(
-        Array.from(this.results).flatMap(([key, performanceEntries]) => {
-          return {
-            Run: key,
-            "Median Time (ms)": median(
-              performanceEntries.map((enty) => enty.duration)
-            ),
-          };
-        })
-      );
-    }
+  afterEach(func: FunctionWithContext<Context>) {
+    this.handlers.afterEach.push(func);
   }
 
   beforeAll(func: FunctionWithContext<Context>) {
@@ -119,16 +110,11 @@ export class Benchmark<Context> {
     this.handlers.beforeEach.push(func);
   }
 
-  afterEach(func: FunctionWithContext<Context>) {
-    this.handlers.afterEach.push(func);
-  }
-
-  afterAll(func: FunctionWithContext<Context>) {
-    this.handlers.afterAll.push(func);
-  }
-
-  private executeHandlers(handlers: HandlerList<Context>, data?: unknown) {
-    return Promise.all(handlers.map((handler) => handler(this.context, data)));
+  run(id: string, file: string) {
+    if (this.runs.has(id)) {
+      throw new Error(`Run with id ${id} already exists.`);
+    }
+    this.runs.set(id, file);
   }
 
   private buildRuns() {
@@ -142,7 +128,9 @@ export class Benchmark<Context> {
       const workerResultRaw = await this.executeRun([id, file]);
 
       if (this.recordPerformance) {
-        const workerResult = JSONParse(workerResultRaw) as WorkerResult;
+        const workerResult = parseJSONWithFunctions(
+          workerResultRaw
+        ) as WorkerResult;
 
         for (const result of workerResult.results) {
           await this.executeHandlers(this.handlers.afterEach, result);
@@ -153,13 +141,17 @@ export class Benchmark<Context> {
     });
   }
 
+  private executeHandlers(handlers: HandlerList<Context>, data?: unknown) {
+    return Promise.all(handlers.map((handler) => handler(this.context, data)));
+  }
+
   private executeRun([id, file]: [id: string, file: string]) {
     return new Promise<string>((resolve, reject) => {
       const worker = new Worker(path.join(__dirname, "./worker.js"), {
         workerData: {
           id,
           file,
-          context: JSONStringify(this.context),
+          context: stringifyJSONWithFunctions(this.context),
           samples: this.samples,
         },
       });
@@ -172,10 +164,28 @@ export class Benchmark<Context> {
     });
   }
 
-  run(id: string, file: string) {
-    if (this.runs.has(id)) {
-      throw new Error(`Run with id ${id} already exists.`);
+  private async executeRuns() {
+    await this.executeHandlers(this.handlers.beforeAll);
+
+    const runs = this.buildRuns();
+
+    await Promise.all(runs);
+
+    await this.executeHandlers(this.handlers.afterAll);
+
+    if (this.recordPerformance) {
+      this.logger.info({
+        results: Array.from(this.results).flatMap(
+          ([key, performanceEntries]) => {
+            return {
+              run: key,
+              medianTime: median(
+                performanceEntries.map((enty) => enty.duration)
+              ),
+            };
+          }
+        ),
+      });
     }
-    this.runs.set(id, file);
   }
 }

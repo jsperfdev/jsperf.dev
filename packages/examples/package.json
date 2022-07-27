@@ -1,7 +1,8 @@
 {
+    "name": "examples",
     "private": true,
-    "type": "module",
     "scripts": {
+        "lint": "cd ../configs-and-scripts && pnpm eslint ../examples",
         "example": "node example-runner.js"
     },
     "dependencies": {

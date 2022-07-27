@@ -1,26 +1,35 @@
 import { parentPort, workerData as _workerData } from "worker_threads";
-import { JSONParse, JSONStringify, WorkerData } from "./utils.js";
+import { parseJSONWithFunctions } from "./parse-json-with-functions.js";
+import { stringifyJSONWithFunctions } from "./stringify-json-with-functions.js";
+import type { WorkerData } from "./benchmark";
 const workerData = _workerData as WorkerData;
 
-const context = JSONParse(workerData.context);
-const module = await import(workerData.file);
-const results = [];
+async function execute() {
+  const context = parseJSONWithFunctions(workerData.context);
+  const script = await import(workerData.file);
 
-for (let i = 0; i < workerData.samples; i++) {
-  performance.mark("start");
-  const result = await module.default(context);
-  performance.mark("end");
-  results.push(result);
+  const results = [];
 
-  performance.measure(workerData.id, "start", "end");
+  for (let i = 0; i < workerData.samples; i++) {
+    performance.mark("start");
+    const result = await script.default(context);
+    performance.mark("end");
+    results.push(result);
+
+    performance.measure(workerData.id, "start", "end");
+  }
+
+  const measures = performance.getEntriesByName(workerData.id);
+
+  return { results, measures };
 }
 
-const measures = performance.getEntriesByName(workerData.id);
-
-parentPort?.postMessage(
-  JSONStringify({
-    id: workerData.id,
-    results,
-    measures,
-  })
-);
+execute().then(({ results, measures }) => {
+  parentPort?.postMessage(
+    stringifyJSONWithFunctions({
+      id: workerData.id,
+      results,
+      measures,
+    })
+  );
+});
