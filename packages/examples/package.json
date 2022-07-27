@@ -6,6 +6,6 @@
         "example": "node example-runner.js"
     },
     "dependencies": {
-        "@jsperf.dev/benchmark": "workspace:^0.0.4"
+        "@jsperf.dev/benchmark": "workspace:*"
     }
 }
