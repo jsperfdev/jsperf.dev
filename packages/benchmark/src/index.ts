@@ -1,3 +1,3 @@
-import { Benchmark } from "./benchmark.js";
+import { Benchmark } from "./benchmark";
 export { Benchmark };
 export default new Benchmark();

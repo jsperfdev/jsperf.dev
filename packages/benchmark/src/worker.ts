@@ -1,6 +1,6 @@
 import { parentPort, workerData as _workerData } from "worker_threads";
-import { parseJSONWithFunctions } from "./parse-json-with-functions.js";
-import { stringifyJSONWithFunctions } from "./stringify-json-with-functions.js";
+import { parseJSONWithFunctions } from "./parse-json-with-functions";
+import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
 import type { WorkerData } from "./benchmark";
 const workerData = _workerData as WorkerData;
 

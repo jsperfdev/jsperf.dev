@@ -2,8 +2,8 @@ import path from "path";
 import pino from "pino";
 import { Worker } from "worker_threads";
 import { median } from "./median";
-import { parseJSONWithFunctions } from "./parse-json-with-functions.js";
-import { stringifyJSONWithFunctions } from "./stringify-json-with-functions.js";
+import { parseJSONWithFunctions } from "./parse-json-with-functions";
+import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
 
 type FunctionWithContext<Context> = (
   context: Context,
