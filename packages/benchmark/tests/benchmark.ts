@@ -74,19 +74,18 @@ tap.test("should not emit start event if no runs are added", async (t) => {
   });
 });
 
-tap.test("should error when a run is added with a non-unique id", async (t) => {
+tap.test("should error when a run is added with a non-unique id", (t) => {
   const benchmark = new Benchmark({
     samples: 1,
     warmup: false,
     logger: pino(pino.destination(tmpPath)),
   });
+  benchmark.on("error", (error) => {
+    t.strictSame(error, new Error("Run with id x already exists."));
+    t.end();
+  });
   benchmark.run("x", scriptPath);
-  t.throws(() => {
-    benchmark.run("x", scriptPath);
-  }, "Run with id x already exists.");
-  await once(benchmark, "start");
-  await once(benchmark, "end");
-  t.end();
+  benchmark.run("x", scriptPath);
 });
 
 tap.test("lifecycle methods are executed in order", async (t) => {
@@ -128,7 +127,7 @@ tap.test("warmup executes runs", async (t) => {
     logger: pino(pino.destination(tmpPath)),
   });
 
-  const executeRunsSpy = sinon.spy(benchmark as any, "executeRuns");
+  const executeRunsSpy = sinon.spy(benchmark as any, "executeRuns"); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   benchmark.run("x", scriptPath);
   await once(benchmark, "end");

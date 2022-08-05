@@ -50,20 +50,17 @@ export class Benchmark<Context> extends EventEmitter {
   private warmup: boolean;
 
   constructor({
-    warmup = true,
-    samples = 10,
+    logger = pino(),
     meta = {},
-    logger,
+    samples = 10,
+    warmup = true,
   }: {
-    warmup?: boolean;
-    samples?: number;
-    meta?: Meta;
     logger?: pino.Logger;
+    meta?: Meta;
+    samples?: number;
+    warmup?: boolean;
   } = {}) {
     super();
-
-    this.logger = logger || pino();
-
     this.context = {} as Context;
 
     this.handlers = {
@@ -73,14 +70,16 @@ export class Benchmark<Context> extends EventEmitter {
       afterAll: [],
     };
 
+    this.logger = logger;
+
+    this.meta = meta;
+    this.meta.title = this.meta.title ?? process.argv[1];
+
     this.recordPerformance = false;
     this.results = new Map();
     this.runs = new Map();
     this.samples = samples;
     this.warmup = warmup;
-
-    this.meta = meta;
-    this.meta.title = this.meta.title ?? process.argv[1];
 
     queueMicrotask(async () => {
       try {
@@ -128,7 +127,7 @@ export class Benchmark<Context> extends EventEmitter {
 
   run(id: string, file: string) {
     if (this.runs.has(id)) {
-      throw new Error(`Run with id ${id} already exists.`);
+      this.emit("error", new Error(`Run with id ${id} already exists.`));
     }
     this.runs.set(id, file);
   }
