@@ -1,6 +1,6 @@
 {
     "name": "examples",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "private": true,
     "scripts": {
         "lint": "cd ../configs-and-scripts && pnpm eslint ../examples",
