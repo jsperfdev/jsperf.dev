@@ -1,5 +1,5 @@
-import path from "path";
 import pino from "pino";
+import { EventEmitter } from "stream";
 import { Worker } from "worker_threads";
 import { median } from "./median";
 import { parseJSONWithFunctions } from "./parse-json-with-functions";
@@ -37,12 +37,12 @@ interface WorkerResult {
   measures: PerformanceEntryList;
 }
 
-export class Benchmark<Context> {
+export class Benchmark<Context> extends EventEmitter {
   public context: Context;
-  public meta: Meta = {};
+  public meta: Meta;
 
   private handlers: Handlers<Context>;
-  private logger: pino.Logger = pino();
+  private logger: pino.Logger;
   private recordPerformance: boolean;
   private results: Map<string, Array<PerformanceEntry>>;
   private runs: Map<string, string>;
@@ -50,12 +50,17 @@ export class Benchmark<Context> {
   private warmup: boolean;
 
   constructor({
-    warmup = true,
+    logger = pino(),
+    meta = {},
     samples = 10,
+    warmup = true,
   }: {
-    warmup?: boolean;
+    logger?: pino.Logger;
+    meta?: Meta;
     samples?: number;
+    warmup?: boolean;
   } = {}) {
+    super();
     this.context = {} as Context;
 
     this.handlers = {
@@ -65,32 +70,42 @@ export class Benchmark<Context> {
       afterAll: [],
     };
 
+    this.logger = logger;
+
+    this.meta = meta;
+    this.meta.title = this.meta.title ?? process.argv[1];
+
     this.recordPerformance = false;
     this.results = new Map();
     this.runs = new Map();
     this.samples = samples;
     this.warmup = warmup;
 
-    this.meta.title = this.meta.title ?? process.argv[1];
-
     queueMicrotask(async () => {
-      if (Array.from(this.runs).length === 0) return;
+      try {
+        if (Array.from(this.runs).length === 0) return;
 
-      this.logger.info({ script: this.meta.title });
+        this.emit("start");
 
-      if (this.meta.description) {
-        this.logger.info({ description: this.meta.description });
-      }
+        this.logger.info({ script: this.meta.title });
 
-      this.logger.info({ samples: this.samples });
+        if (this.meta.description) {
+          this.logger.info({ description: this.meta.description });
+        }
 
-      if (this.warmup) {
-        this.recordPerformance = false;
+        this.logger.info({ samples: this.samples });
+
+        if (this.warmup) {
+          this.recordPerformance = false;
+          await this.executeRuns();
+        }
+
+        this.recordPerformance = true;
         await this.executeRuns();
+        this.emit("end");
+      } catch (error) {
+        this.emit("error", error);
       }
-
-      this.recordPerformance = true;
-      await this.executeRuns();
     });
   }
 
@@ -112,7 +127,7 @@ export class Benchmark<Context> {
 
   run(id: string, file: string) {
     if (this.runs.has(id)) {
-      throw new Error(`Run with id ${id} already exists.`);
+      this.emit("error", new Error(`Run with id ${id} already exists.`));
     }
     this.runs.set(id, file);
   }
@@ -147,7 +162,7 @@ export class Benchmark<Context> {
 
   private executeRun([id, file]: [id: string, file: string]) {
     return new Promise<string>((resolve, reject) => {
-      const worker = new Worker(path.join(__dirname, "./worker.js"), {
+      const worker = new Worker(require.resolve("./worker"), {
         workerData: {
           id,
           file,

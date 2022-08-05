@@ -77,6 +77,8 @@ The benchmark script can be executed using `node` and information about the exec
 
 ### Class: `Benchmark`
 
+Extends: `EventEmitter`
+
 #### `new Benchmark<Context>(options)`
 
 Arguments:
@@ -84,6 +86,8 @@ Arguments:
 - **options** - `object` - _optional_ - Default: `{}`
   - **warmup** - `boolean` - _optional_ - Default: `true`
   - **samples** - `number` - _optional_ - Default: `10`
+  - **meta** - `Meta` - _optional_ - Default: `{}`
+  - **logger** - `pino.Logger` - _optional_ Default: `pino()`
 
 #### Instance Properties
 
@@ -95,8 +99,9 @@ A property that will be passed as the first argument to each lifecyle method and
 
 ##### `Benchmark.meta`
 
-- `object`
-  - **title** - `string` - _optional_
+- `Meta`
+
+A property that represents general information about the benchmark instance. The title is defaulted to `process.argv[1]` (generally the path of the benchmark script).
 
 #### Instance Methods
 
@@ -141,9 +146,32 @@ Arguments:
 
 Add a run to the benchmark instance. The `id` must be unique and `file` must be the absolute path to the script.
 
-### Interface: `FunctionWithContext<Context>`
+#### Instance Events
+
+##### `start`
+
+Emitted at the beginning of the microtask queued during the constructor. It will not be emitted if no runs have been added.
+
+##### `end`
+
+Emitted at the end of the microtask after all runs have been executed.
+
+##### `error`
+
+Emitted whenever an error is thrown. Will return the thrown error.
+
+```js
+const [error] = await once(benchmark, "error");
+```
+
+### Type: `FunctionWithContext<Context>`
 
 - `(context: Context, ...extraArgs: unknown[]) => void | Promise<void>`
+
+### Interface: `Meta`
+
+- **title** - `string` - _optional_
+- **description** - `string` - _optional_
 
 ## Testing
 
