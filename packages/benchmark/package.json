@@ -1,6 +1,6 @@
 {
   "name": "@jsperf.dev/benchmark",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A tap-like benchmarking library",
   "files": [
     "dist"
@@ -41,7 +41,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@jsperf.dev/core": "workspace:^0.1.0",
+    "@jsperf.dev/core": "^0.1.0",
     "pino": "^8.3.0"
   }
 }

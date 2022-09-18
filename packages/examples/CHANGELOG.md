@@ -1,5 +1,12 @@
 # examples
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [b02ba40]
+  - @jsperf.dev/benchmark@0.3.0
+
 ## 0.0.4
 
 ### Patch Changes
