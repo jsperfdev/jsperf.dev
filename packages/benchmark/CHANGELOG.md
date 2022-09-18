@@ -1,5 +1,16 @@
 # @jsperf.dev/benchmark
 
+## 0.2.0
+
+### Minor Changes
+
+- 7bea4f0: Initial release of @jsperf.dev/core and more testing
+
+### Patch Changes
+
+- Updated dependencies [7bea4f0]
+  - @jsperf.dev/core@0.1.0
+
 ## 0.1.0
 
 ### Minor Changes
