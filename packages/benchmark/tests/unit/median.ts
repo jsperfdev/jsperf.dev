@@ -1,5 +1,5 @@
 import tap from "tap";
-import { median } from "../src/median";
+import { median } from "../../src/median";
 
 tap.test("median returns expected values", (t) => {
   t.equal(median([1, 2, 3]), 2);

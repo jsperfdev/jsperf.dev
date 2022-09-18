@@ -7,6 +7,7 @@ Monorepo for [jsperf.dev](https://jsperf.dev).
 ## Packages
 
 - [@jsperf.dev/benchmark](./packages/benchmark/readme.md)
+- [@jsperf.dev/core](./packages/core/readme.md)
 
 ## [Contributing](./contributing.md)
 

@@ -10,7 +10,8 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{js,ts,md}\"",
     "prepare": "husky install",
-    "test": "turbo run test"
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration"
   },
   "devDependencies": {
     "@changesets/cli": "^2.24.1",
