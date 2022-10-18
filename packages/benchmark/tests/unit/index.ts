@@ -9,18 +9,6 @@ import crypto from "node:crypto";
 
 // Intentionally not executing these tests in parallel since all the tests operate on the default `benchmark` instance
 
-const scriptDir = path.join(os.tmpdir(), "benchmark:unit-");
-const scriptPath = path.join(scriptDir, "script.js");
-
-tap.before(async () => {
-  await fs.mkdir(scriptDir, { recursive: true });
-  await fs.writeFile(scriptPath, "module.exports = () => void null");
-});
-
-tap.teardown(async () => {
-  await fs.rm(scriptDir, { recursive: true });
-});
-
 tap.beforeEach(async (t) => {
   const outputPath = setLoggerOutputFile(t.name);
   t.context.outputPath = outputPath;
