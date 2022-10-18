@@ -1,4 +1,3 @@
-import { EOL } from "node:os";
 import tap from "tap";
 import { stringifyJSONWithFunctions } from "../src/stringify-json-with-functions";
 
