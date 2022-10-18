@@ -1,3 +1,4 @@
+import { EOL } from "node:os";
 import tap from "tap";
 import { stringifyJSONWithFunctions } from "../src/stringify-json-with-functions";
 
@@ -11,7 +12,7 @@ tap.test("preceeds functions with the prefix `function-`", (t) => {
   const stringified = stringifyJSONWithFunctions(json);
   t.equal(
     stringified,
-    '{"func":"function-function f() {\\n            return \\"1\\";\\n        }","prop":"2"}'
+    `{"func":"function-function f() { return \\"1\\"; }","prop":"2"}`
   );
   t.end();
 });
