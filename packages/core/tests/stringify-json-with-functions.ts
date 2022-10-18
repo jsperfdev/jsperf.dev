@@ -3,9 +3,8 @@ import { stringifyJSONWithFunctions } from "../src/stringify-json-with-functions
 
 tap.test("preceeds functions with the prefix `function-`", (t) => {
   const json = {
-    func: function f() {
-      return "1";
-    },
+    // prettier-ignore
+    func: function f() { return "1"; },
     prop: "2",
   };
   const stringified = stringifyJSONWithFunctions(json);
