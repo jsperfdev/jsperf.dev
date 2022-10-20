@@ -5,9 +5,11 @@ import benchmark, { setLogger } from "../../../src";
 const scriptPath = process.env.__TEST_SCRIPT_PATH as string;
 const tmpPath = process.env.__TEST_TMP_PATH as string;
 
-console.log(scriptPath, tmpPath);
+const isWindows = process.platform === "win32";
 
-setLogger(pino(pino.destination(tmpPath)));
+setLogger(
+  pino(pino.destination({ dest: tmpPath, mode: isWindows ? 0o444 : 0o666 }))
+);
 
 benchmark.meta = {
   title: "title",
