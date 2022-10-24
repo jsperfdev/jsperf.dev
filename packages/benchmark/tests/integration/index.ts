@@ -23,16 +23,14 @@ tap.beforeEach(async () => {
 });
 
 tap.test("should log title, description, samples, and runs", async (t) => {
-  await exec(
-    'NODE_OPTIONS="-r ts-node/register --no-warnings" node tests/fixtures/basic-log-output/benchmark.ts',
-    {
-      env: {
-        ...process.env,
-        __TEST_TMP_PATH: tmpPath,
-        __TEST_SCRIPT_PATH: scriptPath,
-      },
-    }
-  );
+  await exec("node tests/fixtures/basic-log-output/benchmark.ts", {
+    env: {
+      ...process.env,
+      NODE_OPTIONS: "-r ts-node/register --no-warnings",
+      __TEST_TMP_PATH: tmpPath,
+      __TEST_SCRIPT_PATH: scriptPath,
+    },
+  });
 
   const output = await fs.readFile(tmpPath, "utf8");
   const [l1, l2, l3, l4] = output
