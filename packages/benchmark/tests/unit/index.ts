@@ -7,7 +7,7 @@ import { Benchmark } from "@jsperf.dev/core";
 import pino from "pino";
 import crypto from "node:crypto";
 
-tap.beforeEach(async (t) => {
+tap.beforeEach((t) => {
   const outputPath = setLoggerOutputFile(t.name);
   t.context.outputPath = outputPath;
 });
@@ -16,18 +16,12 @@ tap.afterEach(async (t) => {
   await fs.rm(t.context.outputPath);
 });
 
-const isWindows = process.platform === "win32";
-
 function setLoggerOutputFile(name: string) {
   const outputPath = path.join(
     os.tmpdir(),
     crypto.createHash("md5").update(name).digest("hex")
   );
-  setLogger(
-    pino(
-      pino.destination({ dest: outputPath, mode: isWindows ? 0o444 : 0o666 })
-    )
-  );
+  setLogger(pino(pino.destination({ dest: outputPath, sync: true })));
   return outputPath;
 }
 
