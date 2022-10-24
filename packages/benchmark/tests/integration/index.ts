@@ -6,7 +6,7 @@ import { exec } from "../utils/exec";
 
 let tmpPath: string;
 
-const scriptDir = path.join(os.tmpdir(), "benchmark:integration");
+const scriptDir = path.join(os.tmpdir(), "benchmark-integration");
 const scriptPath = path.join(scriptDir, "script.js");
 
 tap.before(async () => {
