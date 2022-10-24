@@ -13,6 +13,8 @@ import sinon from "sinon";
 const scriptDir = path.join(os.tmpdir(), "core-");
 const scriptPath = path.join(scriptDir, "script.js");
 
+tap.plan(6);
+
 tap.before(async () => {
   await fs.mkdir(scriptDir, { recursive: true });
   await fs.writeFile(scriptPath, "module.exports = () => void null");
