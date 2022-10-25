@@ -11,8 +11,8 @@
     "clean": "rm -rf dist",
     "lint": "cd ../configs-and-scripts && pnpm eslint ../benchmark",
     "prepublishOnly": "pnpm clean && pnpm build",
-    "test:integration": "tap --no-coverage --ts tests/integration",
-    "test:unit": "tap --ts tests/unit",
+    "test:integration": "tap --no-coverage --ts tests/integration --timeout=480",
+    "test:unit": "tap --ts tests/unit --timeout=480",
     "test": "pnpm run test:unit && pnpm run test:integration"
   },
   "keywords": [

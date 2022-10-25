@@ -10,10 +10,8 @@ import os from "node:os";
 import { once } from "node:events";
 import sinon from "sinon";
 
-const scriptDir = path.join(os.tmpdir(), "core-");
+const scriptDir = path.join(os.tmpdir(), "core");
 const scriptPath = path.join(scriptDir, "script.js");
-
-tap.plan(6);
 
 tap.before(async () => {
   await fs.mkdir(scriptDir, { recursive: true });
