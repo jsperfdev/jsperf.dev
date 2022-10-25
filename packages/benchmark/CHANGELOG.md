@@ -1,5 +1,13 @@
 # @jsperf.dev/benchmark
 
+## 0.3.1
+
+### Patch Changes
+
+- 7eb69b4: testing out new release workflow
+- Updated dependencies [7eb69b4]
+  - @jsperf.dev/core@0.1.1
+
 ## 0.3.0
 
 ### Minor Changes
