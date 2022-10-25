@@ -1,5 +1,13 @@
 # @jsperf.dev/benchmark
 
+## 0.3.2
+
+### Patch Changes
+
+- 9945e28: another test for release pipeline
+- Updated dependencies [9945e28]
+  - @jsperf.dev/core@0.1.2
+
 ## 0.3.1
 
 ### Patch Changes

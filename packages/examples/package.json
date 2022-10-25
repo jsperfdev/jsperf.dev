@@ -1,12 +1,12 @@
 {
     "name": "examples",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "private": true,
     "scripts": {
         "lint": "cd ../configs-and-scripts && pnpm eslint ../examples",
         "example": "node example-runner.js"
     },
     "dependencies": {
-        "@jsperf.dev/benchmark": "0.3.1"
+        "@jsperf.dev/benchmark": "0.3.2"
     }
 }
