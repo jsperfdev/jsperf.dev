@@ -1,6 +1,6 @@
 {
   "name": "@jsperf.dev/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Core API for jsperf.dev ecosystem",
   "files": [
     "dist"

@@ -1,5 +1,11 @@
 # @jsperf.dev/core
 
+## 0.1.2
+
+### Patch Changes
+
+- 9945e28: another test for release pipeline
+
 ## 0.1.1
 
 ### Patch Changes
