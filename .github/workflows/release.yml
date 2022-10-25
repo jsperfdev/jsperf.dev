@@ -35,8 +35,6 @@ jobs:
         with:
           publish: pnpm release
           version: pnpm version-packages
-          commit: 'update package versions'
-          title: 'update package versions'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
