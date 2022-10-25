@@ -7,21 +7,7 @@ import { Benchmark } from "@jsperf.dev/core";
 import pino from "pino";
 import crypto from "node:crypto";
 
-// Intentionally not executing these tests in parallel since all the tests operate on the default `benchmark` instance
-
-const scriptDir = path.join(os.tmpdir(), "benchmark:unit-");
-const scriptPath = path.join(scriptDir, "script.js");
-
-tap.before(async () => {
-  await fs.mkdir(scriptDir, { recursive: true });
-  await fs.writeFile(scriptPath, "module.exports = () => void null");
-});
-
-tap.teardown(async () => {
-  await fs.rm(scriptDir, { recursive: true });
-});
-
-tap.beforeEach(async (t) => {
+tap.beforeEach((t) => {
   const outputPath = setLoggerOutputFile(t.name);
   t.context.outputPath = outputPath;
 });
@@ -35,7 +21,7 @@ function setLoggerOutputFile(name: string) {
     os.tmpdir(),
     crypto.createHash("md5").update(name).digest("hex")
   );
-  setLogger(pino(pino.destination(outputPath)));
+  setLogger(pino(pino.destination({ dest: outputPath, sync: true })));
   return outputPath;
 }
 

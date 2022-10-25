@@ -1,5 +1,11 @@
 # @jsperf.dev/benchmark
 
+## 0.3.0
+
+### Minor Changes
+
+- b02ba40: Forgot to replace workspace protocol
+
 ## 0.2.0
 
 ### Minor Changes

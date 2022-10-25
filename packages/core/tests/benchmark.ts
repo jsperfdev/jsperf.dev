@@ -10,9 +10,7 @@ import os from "node:os";
 import { once } from "node:events";
 import sinon from "sinon";
 
-tap.jobs = 4;
-
-const scriptDir = path.join(os.tmpdir(), "core-");
+const scriptDir = path.join(os.tmpdir(), "core");
 const scriptPath = path.join(scriptDir, "script.js");
 
 tap.before(async () => {
@@ -81,14 +79,9 @@ tap.test("lifecycle methods are executed in order", async (t) => {
   t.ok(afterEach.calledOnce);
   t.ok(afterAll.calledOnce);
 
-  t.ok(beforeAll.calledBefore(beforeEach));
-  t.ok(beforeEach.calledBefore(afterEach));
-  t.ok(afterEach.calledBefore(afterAll));
-
-  // TODO: uncomment when sinon bug is fixed https://github.com/sinonjs/sinon/issues/2472
-  // t.ok(beforeAll.calledImmediatelyBefore(beforeEach));
-  // t.ok(beforeEach.calledImmediatelyBefore(afterEach));
-  // t.ok(afterEach.calledImmediatelyBefore(afterAll));
+  t.ok(beforeAll.calledImmediatelyBefore(beforeEach));
+  t.ok(beforeEach.calledImmediatelyBefore(afterEach));
+  t.ok(afterEach.calledImmediatelyBefore(afterAll));
 
   t.end();
 });

@@ -5,9 +5,7 @@ import benchmark, { setLogger } from "../../../src";
 const scriptPath = process.env.__TEST_SCRIPT_PATH as string;
 const tmpPath = process.env.__TEST_TMP_PATH as string;
 
-console.log(scriptPath, tmpPath);
-
-setLogger(pino(pino.destination(tmpPath)));
+setLogger(pino(pino.destination({ dest: tmpPath, sync: true })));
 
 benchmark.meta = {
   title: "title",
