@@ -1,33 +1,13 @@
 import { parentPort, workerData as _workerData } from "worker_threads";
-import { parseJSONWithFunctions } from "./parse-json-with-functions";
+import { executeRun } from "./executeRun";
 import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
-import type { WorkerData } from "./benchmark";
-const workerData = _workerData as WorkerData;
+import type { RunData } from "./benchmark";
+const runData = _workerData as RunData;
 
-async function execute() {
-  const context = parseJSONWithFunctions(workerData.context);
-  const script = await import(workerData.file);
-
-  const results = [];
-
-  for (let i = 0; i < workerData.samples; i++) {
-    performance.mark("start");
-    const result = await script.default(context);
-    performance.mark("end");
-    results.push(result);
-
-    performance.measure(workerData.id, "start", "end");
-  }
-
-  const measures = performance.getEntriesByName(workerData.id);
-
-  return { results, measures };
-}
-
-execute().then(({ results, measures }) => {
+executeRun(runData).then(({ results, measures }) => {
   parentPort?.postMessage(
     stringifyJSONWithFunctions({
-      id: workerData.id,
+      id: runData.id,
       results,
       measures,
     })

@@ -1,5 +1,6 @@
-import { EventEmitter } from "stream";
-import { Worker } from "worker_threads";
+import { EventEmitter } from "node:stream";
+import { Worker } from "node:worker_threads";
+import { fork, spawn } from "node:child_process";
 import { parseJSONWithFunctions } from "./parse-json-with-functions";
 import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
 
@@ -22,14 +23,14 @@ interface Meta {
   description?: string;
 }
 
-export interface WorkerData {
+export interface RunData {
   id: string;
   file: string;
   context: string;
   samples: number;
 }
 
-interface WorkerResult {
+interface RunResult {
   id: string;
   results: Array<unknown>;
   measures: PerformanceEntryList;
@@ -47,26 +48,37 @@ export class NonZeroExitCodeError extends Error {
   }
 }
 
+export const MODES = {
+  workerThreads: Symbol("worker threads"),
+  childProcesses: Symbol("child processes"),
+} as const;
+
+interface BenchmarkOptions {
+  meta?: Meta;
+  samples?: number;
+  warmup?: boolean;
+  mode?: typeof MODES[keyof typeof MODES];
+}
+
 export class Benchmark<Context> extends EventEmitter {
   public context: Context;
   public meta: Meta;
   public readonly results: Map<string, Array<PerformanceEntry>>;
   public samples: number;
   public warmup: boolean;
+  public mode: typeof MODES[keyof typeof MODES];
 
   private handlers: Handlers<Context>;
   private recordPerformance: boolean;
   private runs: Map<string, string>;
+  private controller: AbortController;
 
   constructor({
     meta = {},
     samples = 10,
     warmup = true,
-  }: {
-    meta?: Meta;
-    samples?: number;
-    warmup?: boolean;
-  } = {}) {
+    mode = MODES.workerThreads,
+  }: BenchmarkOptions = {}) {
     super();
     this.context = {} as Context;
 
@@ -86,6 +98,8 @@ export class Benchmark<Context> extends EventEmitter {
     this.runs = new Map();
     this.samples = samples;
     this.warmup = warmup;
+    this.mode = mode;
+    this.controller = new AbortController();
   }
 
   async start() {
@@ -144,7 +158,7 @@ export class Benchmark<Context> extends EventEmitter {
       if (this.recordPerformance) {
         const workerResult = parseJSONWithFunctions(
           workerResultRaw
-        ) as WorkerResult;
+        ) as RunResult;
 
         for (const result of workerResult.results) {
           await this.executeHandlers(this.handlers.afterEach, result);
@@ -161,19 +175,39 @@ export class Benchmark<Context> extends EventEmitter {
 
   private executeRun([id, file]: [id: string, file: string]) {
     return new Promise<string>((resolve, reject) => {
-      const worker = new Worker(require.resolve("./worker"), {
-        workerData: {
-          id,
-          file,
-          context: stringifyJSONWithFunctions(this.context),
-          samples: this.samples,
-        },
-      });
-      worker.on("message", resolve);
-      worker.on("error", reject);
-      worker.on("exit", (code) => {
-        if (code !== 0) reject(new NonZeroExitCodeError(code));
-      });
+      if (this.mode === MODES.workerThreads) {
+        const worker = new Worker(require.resolve("./worker"), {
+          workerData: {
+            id,
+            file,
+            context: stringifyJSONWithFunctions(this.context),
+            samples: this.samples,
+          },
+        });
+        worker.on("message", resolve);
+        worker.on("error", reject);
+        worker.on("exit", (code) => {
+          if (code !== 0) reject(new NonZeroExitCodeError(code));
+        });
+      } else if (this.mode === MODES.childProcesses) {
+        const process = fork(require.resolve("./process"), {
+          signal: this.controller.signal,
+        });
+        process.on("spawn", () => {
+          process.send({
+            id,
+            file,
+            context: stringifyJSONWithFunctions(this.context),
+            samples: this.samples,
+          });
+        });
+        process.on("message", resolve);
+        process.on("error", reject);
+        process.on("exit", (code) => {
+          if (code !== null && code !== 0)
+            reject(new NonZeroExitCodeError(code));
+        });
+      }
     });
   }
 
