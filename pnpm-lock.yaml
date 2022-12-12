@@ -16,7 +16,7 @@ importers:
 
   packages/benchmark:
     specifiers:
-      '@jsperf.dev/core': ^0.1.2
+      '@jsperf.dev/core': ^0.2.0
       '@types/node': ^16.11.45
       '@types/sinon': ^10.0.13
       '@types/tap': ^15.0.6
@@ -87,7 +87,7 @@ importers:
 
   packages/examples:
     specifiers:
-      '@jsperf.dev/benchmark': 0.3.2
+      '@jsperf.dev/benchmark': 0.3.3
     dependencies:
       '@jsperf.dev/benchmark': link:../benchmark
 
