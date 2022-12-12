@@ -1,5 +1,12 @@
 # @jsperf.dev/benchmark
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [57c8b4e]
+  - @jsperf.dev/core@0.2.0
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # examples
 
+## 0.0.8
+
+### Patch Changes
+
+- @jsperf.dev/benchmark@0.3.3
+
 ## 0.0.7
 
 ### Patch Changes
