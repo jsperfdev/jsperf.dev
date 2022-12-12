@@ -12,7 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # just run on ubuntu for now. will add mac and windows support later
+        os: [ubuntu-latest]
         node-version: [16.x, 18.x]
 
     runs-on: ${{ matrix.os }}
