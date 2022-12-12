@@ -1,5 +1,11 @@
 # @jsperf.dev/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 57c8b4e: Migrate from workers to child processes
+
 ## 0.1.2
 
 ### Patch Changes
