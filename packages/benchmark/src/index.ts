@@ -42,5 +42,4 @@ queueMicrotask(() => {
 });
 
 export { setLogger };
-export { MODES } from "@jsperf.dev/core";
 export default benchmark;

@@ -103,7 +103,7 @@ tap.test("warmup executes runs", async (t) => {
   t.end();
 });
 
-tap.test("bubbles up unsuccessful worker exits", async (t) => {
+tap.test("bubbles up unsuccessful exits", async (t) => {
   const failureScriptPath = path.join(os.tmpdir(), "failureScript.js");
   await fs.writeFile(
     failureScriptPath,
@@ -118,7 +118,10 @@ tap.test("bubbles up unsuccessful worker exits", async (t) => {
   benchmark.start();
   const [error] = await once(benchmark, "error");
   t.ok(error instanceof NonZeroExitCodeError);
-  t.strictSame(error.message, "Worker stopped with non-zero exit code: 1");
+  t.strictSame(
+    error.message,
+    "Child process stopped with non-zero exit code: 1"
+  );
 
   await fs.rm(failureScriptPath);
   t.end();

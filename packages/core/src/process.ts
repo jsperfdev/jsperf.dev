@@ -13,5 +13,6 @@ process.on("message", (_runData) => {
         measures,
       })
     );
+    process.disconnect();
   });
 });

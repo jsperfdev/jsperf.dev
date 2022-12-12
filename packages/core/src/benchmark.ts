@@ -1,6 +1,5 @@
 import { EventEmitter } from "node:stream";
-import { Worker } from "node:worker_threads";
-import { fork, spawn } from "node:child_process";
+import { fork } from "node:child_process";
 import { parseJSONWithFunctions } from "./parse-json-with-functions";
 import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
 
@@ -44,20 +43,14 @@ export class RunIDConflictError extends Error {
 
 export class NonZeroExitCodeError extends Error {
   constructor(code: number) {
-    super(`Worker stopped with non-zero exit code: ${code}`);
+    super(`Child process stopped with non-zero exit code: ${code}`);
   }
 }
-
-export const MODES = {
-  workerThreads: Symbol("worker threads"),
-  childProcesses: Symbol("child processes"),
-} as const;
 
 interface BenchmarkOptions {
   meta?: Meta;
   samples?: number;
   warmup?: boolean;
-  mode?: typeof MODES[keyof typeof MODES];
 }
 
 export class Benchmark<Context> extends EventEmitter {
@@ -66,7 +59,6 @@ export class Benchmark<Context> extends EventEmitter {
   public readonly results: Map<string, Array<PerformanceEntry>>;
   public samples: number;
   public warmup: boolean;
-  public mode: typeof MODES[keyof typeof MODES];
 
   private handlers: Handlers<Context>;
   private recordPerformance: boolean;
@@ -77,7 +69,6 @@ export class Benchmark<Context> extends EventEmitter {
     meta = {},
     samples = 10,
     warmup = true,
-    mode = MODES.workerThreads,
   }: BenchmarkOptions = {}) {
     super();
     this.context = {} as Context;
@@ -98,7 +89,6 @@ export class Benchmark<Context> extends EventEmitter {
     this.runs = new Map();
     this.samples = samples;
     this.warmup = warmup;
-    this.mode = mode;
     this.controller = new AbortController();
   }
 
@@ -175,39 +165,22 @@ export class Benchmark<Context> extends EventEmitter {
 
   private executeRun([id, file]: [id: string, file: string]) {
     return new Promise<string>((resolve, reject) => {
-      if (this.mode === MODES.workerThreads) {
-        const worker = new Worker(require.resolve("./worker"), {
-          workerData: {
-            id,
-            file,
-            context: stringifyJSONWithFunctions(this.context),
-            samples: this.samples,
-          },
+      const process = fork(require.resolve("./process"), {
+        signal: this.controller.signal,
+      });
+      process.on("spawn", () => {
+        process.send({
+          id,
+          file,
+          context: stringifyJSONWithFunctions(this.context),
+          samples: this.samples,
         });
-        worker.on("message", resolve);
-        worker.on("error", reject);
-        worker.on("exit", (code) => {
-          if (code !== 0) reject(new NonZeroExitCodeError(code));
-        });
-      } else if (this.mode === MODES.childProcesses) {
-        const process = fork(require.resolve("./process"), {
-          signal: this.controller.signal,
-        });
-        process.on("spawn", () => {
-          process.send({
-            id,
-            file,
-            context: stringifyJSONWithFunctions(this.context),
-            samples: this.samples,
-          });
-        });
-        process.on("message", resolve);
-        process.on("error", reject);
-        process.on("exit", (code) => {
-          if (code !== null && code !== 0)
-            reject(new NonZeroExitCodeError(code));
-        });
-      }
+      });
+      process.on("message", resolve);
+      process.on("error", reject);
+      process.on("exit", (code) => {
+        if (code !== null && code !== 0) reject(new NonZeroExitCodeError(code));
+      });
     });
   }
 
