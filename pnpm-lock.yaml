@@ -91,7 +91,7 @@ importers:
 
   packages/reporter:
     specifiers:
-      '@jsperf.dev/benchmark': workspace:0.3.3
+      '@jsperf.dev/benchmark': ^0.3.3
       '@jsperf.dev/core': ^0.2.0
       '@types/node': ^16.11.45
       '@types/sinon': ^10.0.13
