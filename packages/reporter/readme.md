@@ -1,4 +1,4 @@
-# jsperf.dev/reporter
+# @jsperf.dev/reporter
 
 ## Usage
 
