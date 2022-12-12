@@ -1,0 +1,47 @@
+{
+  "name": "@jsperf.dev/reporter",
+  "version": "0.3.3",
+  "description": "A reporting plugin for @jsperf.dev/benchmark",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "clean": "rm -rf dist",
+    "lint": "cd ../configs-and-scripts && pnpm eslint ../reporter",
+    "prepublishOnly": "pnpm clean && pnpm build",
+    "test:integration": "tap --no-coverage --ts tests/integration --timeout=480",
+    "test:unit": "tap --ts tests/unit --timeout=480",
+    "test": "pnpm run test:unit && pnpm run test:integration"
+  },
+  "keywords": [
+    "benchmarking",
+    "javascript",
+    "typescript",
+    "nodejs",
+    "performance"
+  ],
+  "contributors": [
+    "Ethan Arrowood <ethan@arrowood.dev>"
+  ],
+  "repository": {
+    "type": "git",
+    "directory": "packages/reporter",
+    "url": "https://github.com/jsperfdev/jsperf.dev"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@jsperf.dev/benchmark": "^0.3.3",
+    "@types/node": "^16.11.45",
+    "@types/sinon": "^10.0.13",
+    "@types/tap": "^15.0.6",
+    "sinon": "^14.0.0",
+    "tap": "^16.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@jsperf.dev/core": "^0.2.0"
+  }
+}
