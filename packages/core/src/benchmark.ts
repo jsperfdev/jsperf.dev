@@ -143,18 +143,16 @@ export class Benchmark<Context> extends EventEmitter {
 
       await this.executeHandlers(this.handlers.beforeEach);
 
-      const workerResultRaw = await this.executeRun([id, file]);
+      const resultRaw = await this.executeRun([id, file]);
 
       if (this.recordPerformance) {
-        const workerResult = parseJSONWithFunctions(
-          workerResultRaw
-        ) as RunResult;
+        const result = parseJSONWithFunctions(resultRaw) as RunResult;
 
-        for (const result of workerResult.results) {
-          await this.executeHandlers(this.handlers.afterEach, result);
+        for (const res of result.results) {
+          await this.executeHandlers(this.handlers.afterEach, res);
         }
 
-        this.results.set(workerResult.id, workerResult.measures);
+        this.results.set(result.id, result.measures);
       }
     });
   }
