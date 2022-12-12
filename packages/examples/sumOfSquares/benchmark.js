@@ -1,5 +1,4 @@
 const assert = require("node:assert");
-const { MODES } = require("@jsperf.dev/benchmark");
 const benchmark = require("@jsperf.dev/benchmark").default;
 const path = require("node:path");
 const { createArray } = require("../utils/createArray.js");
