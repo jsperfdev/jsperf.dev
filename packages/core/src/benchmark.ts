@@ -1,5 +1,5 @@
-import { EventEmitter } from "stream";
-import { Worker } from "worker_threads";
+import { EventEmitter } from "node:stream";
+import { fork } from "node:child_process";
 import { parseJSONWithFunctions } from "./parse-json-with-functions";
 import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
 
@@ -22,14 +22,14 @@ interface Meta {
   description?: string;
 }
 
-export interface WorkerData {
+export interface RunData {
   id: string;
   file: string;
   context: string;
   samples: number;
 }
 
-interface WorkerResult {
+interface RunResult {
   id: string;
   results: Array<unknown>;
   measures: PerformanceEntryList;
@@ -43,8 +43,14 @@ export class RunIDConflictError extends Error {
 
 export class NonZeroExitCodeError extends Error {
   constructor(code: number) {
-    super(`Worker stopped with non-zero exit code: ${code}`);
+    super(`Child process stopped with non-zero exit code: ${code}`);
   }
+}
+
+interface BenchmarkOptions {
+  meta?: Meta;
+  samples?: number;
+  warmup?: boolean;
 }
 
 export class Benchmark<Context> extends EventEmitter {
@@ -57,16 +63,13 @@ export class Benchmark<Context> extends EventEmitter {
   private handlers: Handlers<Context>;
   private recordPerformance: boolean;
   private runs: Map<string, string>;
+  private controller: AbortController;
 
   constructor({
     meta = {},
     samples = 10,
     warmup = true,
-  }: {
-    meta?: Meta;
-    samples?: number;
-    warmup?: boolean;
-  } = {}) {
+  }: BenchmarkOptions = {}) {
     super();
     this.context = {} as Context;
 
@@ -86,6 +89,7 @@ export class Benchmark<Context> extends EventEmitter {
     this.runs = new Map();
     this.samples = samples;
     this.warmup = warmup;
+    this.controller = new AbortController();
   }
 
   async start() {
@@ -139,18 +143,16 @@ export class Benchmark<Context> extends EventEmitter {
 
       await this.executeHandlers(this.handlers.beforeEach);
 
-      const workerResultRaw = await this.executeRun([id, file]);
+      const resultRaw = await this.executeRun([id, file]);
 
       if (this.recordPerformance) {
-        const workerResult = parseJSONWithFunctions(
-          workerResultRaw
-        ) as WorkerResult;
+        const result = parseJSONWithFunctions(resultRaw) as RunResult;
 
-        for (const result of workerResult.results) {
-          await this.executeHandlers(this.handlers.afterEach, result);
+        for (const res of result.results) {
+          await this.executeHandlers(this.handlers.afterEach, res);
         }
 
-        this.results.set(workerResult.id, workerResult.measures);
+        this.results.set(result.id, result.measures);
       }
     });
   }
@@ -161,18 +163,21 @@ export class Benchmark<Context> extends EventEmitter {
 
   private executeRun([id, file]: [id: string, file: string]) {
     return new Promise<string>((resolve, reject) => {
-      const worker = new Worker(require.resolve("./worker"), {
-        workerData: {
+      const process = fork(require.resolve("./process"), {
+        signal: this.controller.signal,
+      });
+      process.on("spawn", () => {
+        process.send({
           id,
           file,
           context: stringifyJSONWithFunctions(this.context),
           samples: this.samples,
-        },
+        });
       });
-      worker.on("message", resolve);
-      worker.on("error", reject);
-      worker.on("exit", (code) => {
-        if (code !== 0) reject(new NonZeroExitCodeError(code));
+      process.on("message", resolve);
+      process.on("error", reject);
+      process.on("exit", (code) => {
+        if (code !== null && code !== 0) reject(new NonZeroExitCodeError(code));
       });
     });
   }
