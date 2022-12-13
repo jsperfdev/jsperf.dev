@@ -5,11 +5,7 @@ export const parseJSON = (value: string) => {
     } else if (v.substring(0, 9) === "function-") {
       return eval(`(${v.substring(9)})`);
     } else if (v.substring(0, 7) === "bigint-") {
-      try {
-        return BigInt(v.substring(7));
-      } catch (_) {
-        return v;
-      }
+      return BigInt(v.substring(7));
     } else {
       return v;
     }
