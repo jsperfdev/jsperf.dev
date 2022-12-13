@@ -1,5 +1,5 @@
 import { executeRun } from "./executeRun";
-import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
+import { stringifyJSON } from "./stringify-json";
 import type { RunData } from "./benchmark";
 
 process.on("message", (_runData) => {
@@ -7,7 +7,7 @@ process.on("message", (_runData) => {
 
   executeRun(runData).then(({ results, measures }) => {
     process.send?.(
-      stringifyJSONWithFunctions({
+      stringifyJSON({
         id: runData.id,
         results,
         measures,

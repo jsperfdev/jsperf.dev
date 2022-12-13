@@ -1,8 +1,8 @@
-import { parseJSONWithFunctions } from "./parse-json-with-functions";
+import { parseJSON } from "./parse-json";
 import type { RunData } from "./benchmark";
 
 export async function executeRun(runData: RunData) {
-  const context = parseJSONWithFunctions(runData.context);
+  const context = parseJSON(runData.context);
   const script = await import(runData.file);
 
   const results = [];

@@ -14,7 +14,7 @@ const benchmark = require("@jsperf.dev/benchmark").default;
 
 Some configuration values can be modified. Make sure this happens within the same execution step of the main script. The configurable properties can be found in the [`@jsperf.dev/core`](../core/readme.md) docs under [Benchmark - Instance Properties](../core/readme.md#instance-properties).
 
-For example, the [sumOfSquares](../examples/sumOfSquares/benchmark.js) example sets its `meta` property:
+For example, the [sumOfSquares](../examples/basic-examples/sumOfSquares/benchmark.js) example sets its `meta` property:
 
 ```js
 const N = 10000;
@@ -31,7 +31,7 @@ A benchmark suite has a `context` that is passed to every lifecycle method and r
 
 For example, the `context` should contain normalized input values or methods that all of the run scripts should use.
 
-From the [sumOfSquares](../examples/sumOfSquares/benchmark.js) example:
+From the [sumOfSquares](../examples/basic-examples/sumOfSquares/benchmark.js) example:
 
 ```js
 benchmark.beforeAll((context) => {
@@ -42,7 +42,7 @@ benchmark.beforeAll((context) => {
 });
 ```
 
-Similarly, the _after_ lifecycle methods can be used to assert that the results of each run script are correct. Continuing with the [sumOfSquares](../examples/sumOfSquares/benchmark.js) example, the following block asserts that the `list` in the `context` remains the same length, and that the result from each run is the expected value.
+Similarly, the _after_ lifecycle methods can be used to assert that the results of each run script are correct. Continuing with the [sumOfSquares](../examples/basic-examples/sumOfSquares/benchmark.js) example, the following block asserts that the `list` in the `context` remains the same length, and that the result from each run is the expected value.
 
 ```js
 benchmark.afterEach(({ list }, sum) => {
@@ -60,13 +60,13 @@ module.exports.default = ({ list, square }) => {
 };
 ```
 
-Finally, back in the benchmarking script, add runs using the `run` method. The first argument must be a unique identifier, and the second argument must be the absoulte path to the _run_ script. The [sumOfSquares](../examples/sumOfSquares/benchmark.js) example is written in CommonJS so it makes use of `path.resolve()` and `__dirname`, but ESM users can make use of a path resolver like: `path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), 'reduce.js')`.
+Finally, back in the benchmarking script, add runs using the `run` method. The first argument must be a unique identifier, and the second argument must be the absoulte path to the _run_ script. The [sumOfSquares](../examples/basic-examples/sumOfSquares/benchmark.js) example is written in CommonJS so it makes use of `path.resolve()` and `__dirname`, but ESM users can make use of a path resolver like: `path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), 'reduce.js')`.
 
 ```js
 benchmark.run("reduce", path.resolve(__dirname, "reduce.js"));
 ```
 
-The benchmark script can be executed using `node` and information about the execution will be logged to `stdout`. Below is a simplified output of the [sumOfSquares](../examples/sumOfSquares/benchmark.js) example.
+The benchmark script can be executed using `node` and information about the execution will be logged to `stdout`. Below is a simplified output of the [sumOfSquares](../examples/basic-examples/sumOfSquares/benchmark.js) example.
 
 ```
 { "script": "Sum of Squares" }

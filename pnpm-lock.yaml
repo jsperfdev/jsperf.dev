@@ -89,6 +89,18 @@ importers:
     dependencies:
       '@jsperf.dev/benchmark': link:../benchmark
 
+  packages/examples/project-example:
+    specifiers:
+      '@jsperf.dev/benchmark': workspace:^0.3.3
+      '@jsperf.dev/reporter': workspace:^0.1.1
+      '@types/node': ^16.11.45
+      typescript: ^4.7.4
+    dependencies:
+      '@jsperf.dev/benchmark': link:../../benchmark
+      '@jsperf.dev/reporter': link:../../reporter
+      '@types/node': 16.11.45
+      typescript: 4.7.4
+
   packages/reporter:
     specifiers:
       '@jsperf.dev/benchmark': ^0.3.3
@@ -704,7 +716,6 @@ packages:
 
   /@types/node/16.11.45:
     resolution: {integrity: sha512-3rKg/L5x0rofKuuUt5zlXzOnKyIHXmIu5R8A0TuNDMF2062/AOIDBciFIjToLEJ/9F9DzkHNot+BpNsMI1OLdQ==}
-    dev: true
 
   /@types/node/17.0.45:
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
@@ -3803,7 +3814,6 @@ packages:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}

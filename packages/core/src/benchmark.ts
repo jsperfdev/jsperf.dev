@@ -1,7 +1,7 @@
 import { EventEmitter } from "node:stream";
 import { fork } from "node:child_process";
-import { parseJSONWithFunctions } from "./parse-json-with-functions";
-import { stringifyJSONWithFunctions } from "./stringify-json-with-functions";
+import { parseJSON } from "./parse-json";
+import { stringifyJSON } from "./stringify-json";
 
 type FunctionWithContext<Context> = (
   context: Context,
@@ -146,7 +146,7 @@ export class Benchmark<Context> extends EventEmitter {
       const resultRaw = await this.executeRun([id, file]);
 
       if (this.recordPerformance) {
-        const result = parseJSONWithFunctions(resultRaw) as RunResult;
+        const result = parseJSON(resultRaw) as RunResult;
 
         for (const res of result.results) {
           await this.executeHandlers(this.handlers.afterEach, res);
@@ -170,7 +170,7 @@ export class Benchmark<Context> extends EventEmitter {
         process.send({
           id,
           file,
-          context: stringifyJSONWithFunctions(this.context),
+          context: stringifyJSON(this.context),
           samples: this.samples,
         });
       });

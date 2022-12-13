@@ -1,0 +1,19 @@
+{
+  "name": "project-example",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "benchmark": "node ./benchmark/benchmark"
+  },
+  "keywords": [],
+  "author": "Ethan Arrowood <ethan@arrowood.dev>",
+  "license": "MIT",
+  "dependencies": {
+    "@jsperf.dev/benchmark": "workspace:^0.3.3",
+    "@jsperf.dev/reporter": "workspace:^0.1.1",
+    "@types/node": "^16.11.45",
+    "typescript": "^4.7.4"
+  }
+}
