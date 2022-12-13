@@ -1,6 +1,6 @@
 {
   "name": "@jsperf.dev/reporter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A reporting plugin for @jsperf.dev/benchmark",
   "files": [
     "dist"
@@ -32,7 +32,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@jsperf.dev/benchmark": "^0.3.3",
+    "@jsperf.dev/benchmark": "^0.3.4",
     "@types/node": "^16.11.45",
     "@types/sinon": "^10.0.13",
     "@types/tap": "^15.0.6",
@@ -42,6 +42,6 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@jsperf.dev/core": "^0.2.0"
+    "@jsperf.dev/core": "^0.3.0"
   }
 }
