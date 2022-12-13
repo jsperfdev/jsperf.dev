@@ -1,6 +1,6 @@
 {
   "name": "@jsperf.dev/reporter",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A reporting plugin for @jsperf.dev/benchmark",
   "files": [
     "dist"
