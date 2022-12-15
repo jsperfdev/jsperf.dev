@@ -1,6 +1,6 @@
 import pino from "pino";
 import { Benchmark } from "@jsperf.dev/core";
-import { median } from "./median";
+import { median } from "@jsperf.dev/math";
 
 let logger = pino();
 

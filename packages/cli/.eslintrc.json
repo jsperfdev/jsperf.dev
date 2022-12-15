@@ -1,0 +1,3 @@
+{
+    "extends": "@jsperf.dev/eslint-config"
+}

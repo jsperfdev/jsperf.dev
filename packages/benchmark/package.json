@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@jsperf.dev/core": "^0.3.0",
+    "@jsperf.dev/math": "workspace:^0.0.1",
     "pino": "^8.3.0"
   }
 }
