@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "clean": "rm -rf dist",
-    "lint": "cd ../configs-and-scripts && pnpm eslint ../benchmark",
+    "lint": "eslint --config .eslintrc.json .",
     "prepublishOnly": "pnpm clean && pnpm build",
     "test:integration": "tap --no-coverage --ts tests/integration --timeout=480",
     "test:unit": "tap --ts tests/unit --timeout=480",
@@ -32,9 +32,12 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@jsperf.dev/eslint-config": "workspace:*",
+    "@jsperf.dev/tsconfig": "workspace:*",
     "@types/node": "^16.11.45",
     "@types/sinon": "^10.0.13",
     "@types/tap": "^15.0.6",
+    "eslint": "^8.0.1",
     "sinon": "^14.0.0",
     "tap": "^16.0.1",
     "ts-node": "^10.9.1",

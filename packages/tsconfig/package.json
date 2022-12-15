@@ -1,0 +1,9 @@
+{
+    "name": "@jsperf.dev/tsconfig",
+    "private": true,
+    "main": "./tsconfig-base.json",
+    "devDependencies": {
+      "typescript": "^4.7.4"
+    }
+  }
+  

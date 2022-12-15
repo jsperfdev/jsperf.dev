@@ -1,5 +1,5 @@
 {
-    "extends": "../configs-and-scripts/tsconfig-base.json",
+    "extends": "@jsperf.dev/tsconfig/tsconfig-base.json",
     "compilerOptions": {
         "outDir": "dist",
     },
