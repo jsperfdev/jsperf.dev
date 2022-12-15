@@ -114,6 +114,12 @@ importers:
       eslint-plugin-node: 11.1.0_eslint@8.20.0
       eslint-plugin-promise: 6.0.0_eslint@8.20.0
 
+  packages/examples/basic-examples:
+    specifiers:
+      '@jsperf.dev/benchmark': workspace:^0.3.4
+    dependencies:
+      '@jsperf.dev/benchmark': link:../../benchmark
+
   packages/math:
     specifiers:
       '@jsperf.dev/eslint-config': workspace:*
